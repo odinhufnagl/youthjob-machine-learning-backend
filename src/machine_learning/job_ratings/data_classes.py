@@ -1,7 +1,8 @@
 class Job():
-    def __init__(self, id, title_vector, tag_vectors, e_types_hotencoded) -> None:
+    def __init__(self, id, title_vector, description_vector, tag_vectors, e_types_hotencoded) -> None:
         self.id = id
         self.title_vector = title_vector
+        self.description_vector = description_vector
         self.e_types_hotencoded = e_types_hotencoded
         self.tag_vectors = tag_vectors
 

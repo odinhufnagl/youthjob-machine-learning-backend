@@ -105,7 +105,7 @@ class JobRatingsDataSet():
         return jobs
 
     def dbjob_to_job(self, dbjob: DBJob) -> Job:
-        job = Job(dbjob.id, dbjob.title.vector, self.collect_tag_vectors(
+        job = Job(dbjob.id, dbjob.title.vector, dbjob.description.vector, self.collect_tag_vectors(
             dbjob.tags), self.hotencode_e_types(dbjob.employment_types))
         return job
 
