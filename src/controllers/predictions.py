@@ -13,7 +13,8 @@ from services.main_api import create_predicted_ratings, fetch_job, fetch_jobs
 # possibly go trough constants folder
 E_TYPE_WEIGHT = 0.25
 TAG_WEIGHT = 0.25
-TITLE_VECTOR_WEIGHT = 0.5
+DESCRIPTION_VECTOR_WEIGHT = 0.25
+TITLE_VECTOR_WEIGHT = 0.25
 USERS_E_TYPE_WEIGHT = 10
 USERS_TAG_WEIGHT = 10
 
@@ -31,10 +32,12 @@ def update_predictions(user_id):
         e_type_weight=E_TYPE_WEIGHT,
         tag_weight=TAG_WEIGHT,
         title_vector_weight=TITLE_VECTOR_WEIGHT,
+        description_vector_weight=DESCRIPTION_VECTOR_WEIGHT,
         users_e_type_weight=USERS_E_TYPE_WEIGHT,
         users_tag_weight=USERS_TAG_WEIGHT,
         title_vector_similarity_normalization=lambda x: x,
-        tag_similarity_normalization=lambda x: x
+        description_vector_similarity_normalization=lambda x: x,
+        tag_similarity_normalization=lambda x: x,
     )
 
     # train model

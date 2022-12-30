@@ -88,21 +88,23 @@ class DBUser():
 
 
 class DBJob():
-    def __init__(self, id, title: DBWordVector, tags: list[DBTag], employment_types: list[DBEmploymentType]) -> None:
+    def __init__(self, id, title: DBWordVector, description: DBWordVector, tags: list[DBTag], employment_types: list[DBEmploymentType]) -> None:
         self.id = id
         self.tags = tags
         self.employment_types = employment_types
         self.title = title
+        self.description = description
 
     @classmethod
     def from_json(cls, data):
         id = data['id']
         title = DBWordVector.from_json(data['title'])
+        description = DBWordVector.from_json(data['description'])
         tags: list[DBTag] = list(
             map(lambda tag: DBTag.from_json(tag), data['tags']))
         e_types: list[DBEmploymentType] = list(
             map(lambda e_type: DBEmploymentType.from_json(e_type), data['employmentTypes']))
-        return cls(id, title, tags, e_types)
+        return cls(id, title, description, tags, e_types)
 
     @classmethod
     def from_json_list(cls, lst):
