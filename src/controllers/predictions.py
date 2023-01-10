@@ -2,11 +2,11 @@ import json
 
 from pandas import period_range
 from classes.main_api_models import DBPredictedRating
-from machine_learning.job_ratings import JobRatingsDataSet, JobRatingsPredicter
+from machine_learning.job_posting_ratings import JobPostingRatingsDataSet, JobPostingRatingsPredicter
 from flask import jsonify
-from machine_learning.job_ratings.data_classes import Rating
+from machine_learning.job_posting_ratings.data_classes import Rating
 
-from services.main_api import create_predicted_ratings, fetch_job, fetch_jobs
+from services.main_api import create_predicted_ratings, fetch_job_posting, fetch_job_postings
 
 
 # should be in .env
@@ -22,13 +22,13 @@ USERS_TAG_WEIGHT = 10
 def update_predictions(user_id):
     user_id = int(user_id)
 
-    training_dataset = JobRatingsDataSet()
+    training_dataset = JobPostingRatingsDataSet()
 
     user = training_dataset.get_user(user_id)
-    job_ratings = training_dataset.get_job_ratings(user.id)
+    job_posting_ratings = training_dataset.get_job_posting_ratings(user.id)
 
     # init predicted
-    model = JobRatingsPredicter(
+    model = JobPostingRatingsPredicter(
         e_type_weight=E_TYPE_WEIGHT,
         tag_weight=TAG_WEIGHT,
         title_vector_weight=TITLE_VECTOR_WEIGHT,
@@ -41,18 +41,18 @@ def update_predictions(user_id):
     )
 
     # train model
-    model.train(user, job_ratings)
-    print("job_ratings", job_ratings)
+    model.train(user, job_posting_ratings)
+    print("job_posting_ratings", job_posting_ratings)
 
     # make predictions
-    jobs = training_dataset.get_jobs()
-    predicted_ratings: list[float] = model.predict_ratings(jobs)
+    job_postings = training_dataset.get_job_postings()
+    predicted_ratings: list[float] = model.predict_ratings(job_postings)
     res = []
-    for job, rating_value in zip(jobs, predicted_ratings):
+    for job_posting, rating_value in zip(job_postings, predicted_ratings):
         res.append(
-            {"jobId": job.id, "value": rating_value})
+            {"jobPostingId": job_posting.id, "value": rating_value})
     # add predictions to database
     predicted_ratings_to_create: list[DBPredictedRating] = [DBPredictedRating(
-        rating_value, user.id, job.id) for job, rating_value in zip(jobs, predicted_ratings)]
+        rating_value, user.id, job_posting.id) for job_posting, rating_value in zip(job_postings, predicted_ratings)]
     create_predicted_ratings(predicted_ratings_to_create)
     return jsonify(res)
