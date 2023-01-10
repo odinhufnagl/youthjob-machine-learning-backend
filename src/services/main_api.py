@@ -27,25 +27,25 @@ def fetch_user(id) -> Union[DBUser, HttpError]:
         return HttpError(str(e), res.status_code)
 
 
-def fetch_jobs() -> Union[list[DBJob], HttpError]:
+def fetch_job_postings() -> Union[list[DBJobPosting], HttpError]:
     try:
         res = requests.get(ENDPOINT.JOBS)
         res.raise_for_status()
         data = res.json()
-        return DBJob.from_json_list(data)
+        return DBJobPosting.from_json_list(data)
     except requests.exceptions.HTTPError as e:
-        print("error fetching jobs")
+        print("error fetching job_postings")
         return HttpError(str(e), res.status_code)
 
 
-def fetch_job(job_id) -> Union[DBJob, HttpError]:
+def fetch_job_posting(job_posting_id) -> Union[DBJobPosting, HttpError]:
     try:
-        res = requests.get(ENDPOINT.JOB(job_id))
+        res = requests.get(ENDPOINT.JOB(job_posting_id))
         res.raise_for_status()
         data = res.json()
-        return DBJob.from_json(data)
+        return DBJobPosting.from_json(data)
     except requests.exceptions.HTTPError as e:
-        print("error fetching jobs")
+        print("error fetching job_postings")
         return HttpError(str(e), res.status_code)
 
 
@@ -70,17 +70,6 @@ def fetch_employment_types() -> Union[list[DBEmploymentType], HttpError]:
         return DBEmploymentType.from_json_list(data)
     except requests.exceptions.HTTPError as e:
         print("error fetching e_types")
-        return HttpError(str(e), res.status_code)
-
-
-def fetch_tags() -> Union[list[DBTag], HttpError]:
-    try:
-        res = requests.get(ENDPOINT.TAGS)
-        res.raise_for_status()
-        data = res.json()
-        return DBTag.from_json_list(data)
-    except requests.exceptions.HTTPError as e:
-        print("error fetching tags")
         return HttpError(str(e), res.status_code)
 
 

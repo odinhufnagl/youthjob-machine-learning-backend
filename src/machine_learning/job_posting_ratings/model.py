@@ -33,7 +33,7 @@ class FieldWeightsCollection():
         self.description_vector_weight = description_vector_weight
 
 
-class JobRatingsPredicter():
+class JobPostingRatingsPredicter():
     def __init__(self, e_type_weight, tag_weight, title_vector_weight, description_vector_weight, users_e_type_weight, users_tag_weight, title_vector_similarity_normalization: Callable[[int], int], description_vector_similarity_normalization: Callable[[int], int], tag_similarity_normalization: Callable[[int], int]) -> None:
         self.title_vector_embeddings = []
         self.tag_embeddings = []
@@ -47,22 +47,23 @@ class JobRatingsPredicter():
         self.tag_similarity_normalization = tag_similarity_normalization
         self.description_vector_similarity_normalization = description_vector_similarity_normalization
 
-    def predict_ratings(self, jobs: list[Job]) -> list[float]:
+    def predict_ratings(self, job_postings: list[JobPosting]) -> list[float]:
         print(self.weighted_feature_set.title_vector_weights)
         ratings: list[Rating] = []
-        for job in jobs:
-            rating_value = self.calculate_rating_value(job)
+        for job_posting in job_postings:
+            rating_value = self.calculate_rating_value(job_posting)
             ratings.append(rating_value)
         return ratings
 
-    def calculate_rating_value(self, job: Job):
+    def calculate_rating_value(self, job_posting: JobPosting):
         rating_value_e_types = self.get_rating_value_for_e_types(
-            job.e_types_hotencoded)
-        rating_value_tags = self.get_rating_value_for_tags(job.tag_vectors)
+            job_posting.e_types_hotencoded)
+        rating_value_tags = self.get_rating_value_for_tags(
+            job_posting.tag_vectors)
         rating_value_title_vector = self.get_rating_value_for_title_vector(
-            job.title_vector)
+            job_posting.title_vector)
         rating_value_desc_vector = self.get_rating_value_for_description_vector(
-            job.description_vector)
+            job_posting.description_vector)
         rating_value = rating_value_e_types + \
             rating_value_tags + rating_value_title_vector + rating_value_desc_vector
         return rating_value
@@ -183,19 +184,20 @@ class JobRatingsPredicter():
 
     def get_feature_set(self, ratings: list[Rating], user: User) -> FeatureSet:
         print("ratings", ratings)
-        jobs: list[Job] = [rating.job for rating in ratings]
+        job_postings: list[JobPosting] = [
+            rating.job_posting for rating in ratings]
         e_types_hotencoded = self.feature_set_hotencoding(
-            [job.e_types_hotencoded for job in jobs], ratings, user)
+            [job_posting.e_types_hotencoded for job_posting in job_postings], ratings, user)
         tag_weights: list[WeightedVector] = []
         title_vector_weights: list[WeightedVector] = []
         desc_vector_weights: list[WeightedVector] = []
         for rating in ratings:
-            for tag_vector in rating.job.tag_vectors:
+            for tag_vector in rating.job_posting.tag_vectors:
                 tag_weights.append(WeightedVector(rating.value, tag_vector))
             title_vector_weights.append(WeightedVector(
-                rating.value, rating.job.title_vector))
+                rating.value, rating.job_posting.title_vector))
             desc_vector_weights.append(WeightedVector(
-                rating.value, rating.job.description_vector))
+                rating.value, rating.job_posting.description_vector))
 
         return FeatureSet(e_types_hotencoded, tag_weights, title_vector_weights, desc_vector_weights)
 

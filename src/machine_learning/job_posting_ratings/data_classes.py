@@ -1,4 +1,7 @@
-class Job():
+from typing import Optional
+
+
+class JobPosting():
     def __init__(self, id, title_vector, description_vector, tag_vectors, e_types_hotencoded) -> None:
         self.id = id
         self.title_vector = title_vector
@@ -18,7 +21,9 @@ class User():
 
 
 class Rating():
-    def __init__(self, value: float, user: User, job: Job) -> None:
+    def __init__(self, value: float, user_id, job_posting_id, user: Optional[User], job_posting: Optional[JobPosting]) -> None:
         self.value = value
+        self.user_id = user_id
+        self.job_posting_id = job_posting_id
         self.user = user
-        self.job = job
+        self.job_posting = job_posting

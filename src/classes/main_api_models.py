@@ -3,6 +3,9 @@
 # in JSON. Then , we can manipulate the JSON directly
 # from the dataset to convert it to the objects for the model
 import json
+from typing import Optional
+
+from flask import jsonify
 
 
 class DBWordVector():
@@ -60,7 +63,7 @@ class DBTag():
     @classmethod
     def from_json(cls, data):
         id = data['id']
-        name_vector = DBWordVector.from_json(data['name'])
+        name_vector = DBWordVector.from_json(data['nameWordVector'])
         return cls(id, name_vector)
 
     @classmethod
@@ -87,7 +90,7 @@ class DBUser():
         return cls(id, tags, e_types)
 
 
-class DBJob():
+class DBJobPosting():
     def __init__(self, id, title: DBWordVector, description: DBWordVector, tags: list[DBTag], employment_types: list[DBEmploymentType]) -> None:
         self.id = id
         self.tags = tags
@@ -97,9 +100,10 @@ class DBJob():
 
     @classmethod
     def from_json(cls, data):
+        print(data.keys())
         id = data['id']
-        title = DBWordVector.from_json(data['title'])
-        description = DBWordVector.from_json(data['description'])
+        title = DBWordVector.from_json(data['titleWordVector'])
+        description = DBWordVector.from_json(data['descriptionWordVector'])
         tags: list[DBTag] = list(
             map(lambda tag: DBTag.from_json(tag), data['tags']))
         e_types: list[DBEmploymentType] = list(
@@ -108,26 +112,37 @@ class DBJob():
 
     @classmethod
     def from_json_list(cls, lst):
-        jobs: list[cls] = []
-        for job_data in lst:
-            jobs.append(cls.from_json(job_data))
-        return jobs
+        job_postings: list[cls] = []
+        for job_posting_data in lst:
+            job_postings.append(cls.from_json(job_posting_data))
+        return job_postings
 
 
 class DBRating():
-    def __init__(self, id, value: float, user: DBUser, job: DBJob) -> None:
-        self.id = id
+    def __init__(self, value: float, user_id, job_posting_id, user: Optional[DBUser], job_posting: Optional[DBJobPosting]) -> None:
         self.value = value
         self.user = user
-        self.job = job
+        self.user_id = user_id
+        self.job_posting = job_posting
+        self.job_posting_id = job_posting_id
 
     @classmethod
     def from_json(cls, data):
-        id = data['id']
         value = data['value']
-        user = DBUser.from_json(data['user'])
-        job = DBJob.from_json(data['job'])
-        return cls(id, value, user, job)
+        if ('user' in data):
+            user = DBUser.from_json(data['user'])
+            user_id = user.id
+        else:
+            user = None
+            user_id = data['userId']
+        if ('jobPosting' in data):
+            job_posting = DBJobPosting.from_json(
+                data['jobPosting'])
+            job_posting_id = job_posting.id
+        else:
+            job_posting = None
+            job_posting_id = data['jobPostingId']
+        return cls(value,  user_id, job_posting_id, user, job_posting)
 
     @classmethod
     def from_json_list(cls, lst):
@@ -138,24 +153,24 @@ class DBRating():
 
 
 class DBPredictedRating():
-    def __init__(self,  value: float, userId: int, jobId: int) -> None:
+    def __init__(self,  value: float, user_id: int, job_posting_id: int) -> None:
         self.id = id
         self.value = value
-        self.userId = userId
-        self.jobId = jobId
+        self.user_id = user_id
+        self.job_posting_id = job_posting_id
 
     @classmethod
     def from_json(cls, data):
         id = data['id']
         value = data['value']
         user = DBUser.from_json(data['user'])
-        job = DBJob.from_json(data['job'])
-        return cls(id, value, user, job)
+        job_posting = DBJobPosting.from_json(data['jobPosting'])
+        return cls(id, value, user, job_posting)
 
     def to_json(self):
         data = {
             'value': self.value,
-            'userId': self.userId,
-            'jobId': self.jobId,
+            'userId': self.user_id,
+            'jobPostingId': self.job_posting_id,
         }
         return json.dumps(data)
