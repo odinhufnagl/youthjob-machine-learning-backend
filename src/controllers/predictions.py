@@ -3,7 +3,7 @@ import json
 from pandas import period_range
 from classes.main_api_models import DBPredictedRating
 from machine_learning.job_posting_ratings import JobPostingRatingsDataSet, JobPostingRatingsPredicter
-from flask import jsonify
+from flask import Request, jsonify
 from machine_learning.job_posting_ratings.data_classes import Rating
 
 from services.main_api import create_predicted_ratings, fetch_job_posting, fetch_job_postings
@@ -20,6 +20,7 @@ USERS_TAG_WEIGHT = 10
 
 
 def update_predictions(user_id):
+
     user_id = int(user_id)
 
     training_dataset = JobPostingRatingsDataSet()

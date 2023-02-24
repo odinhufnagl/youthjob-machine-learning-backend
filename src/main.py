@@ -1,5 +1,5 @@
 import controllers
-from flask import Flask
+from flask import Flask, request
 
 from services.main_api import *
 app = Flask(__name__)
@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/update_predictions/<user_id>')
 def update_predictions(user_id):
-    fetch_user(1)
+    print("is called")
     return controllers.update_predictions(user_id)
 
 

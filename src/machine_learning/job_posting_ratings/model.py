@@ -148,7 +148,7 @@ class JobPostingRatingsPredicter():
         return weighted_feature_set
 
     def add_user_hotencoded_to_hotencoded(self, hotencoded: list[float], user_hotencoded: list[float], user_weight: float):
-        return (user_hotencoded * user_weight) * hotencoded
+        return (np.array(user_hotencoded) * user_weight) * hotencoded
 
     def add_user_vectors_to_weighted_vectors(self, weighted_vectors: list[WeightedVector], user_vectors: list[list[float]], user_weight: float):
         weighted_vectors_copy = weighted_vectors.copy()
