@@ -21,13 +21,12 @@ class DBWordVector():
 
 
 class DBEmploymentType():
-    def __init__(self, id, name) -> None:
+    def __init__(self, id) -> None:
         self.id = id
-        self.name = name
 
     @classmethod
     def from_json(cls, data):
-        return cls(data['id'], data['name'])
+        return cls(data['id'])
 
     @classmethod
     def from_json_list(cls, lst):
@@ -167,6 +166,10 @@ class DBPredictedRating():
         job_posting = DBJobPosting.from_json(data['jobPosting'])
         return cls(id, value, user, job_posting)
 
+    @classmethod
+    def to_dict_list(cls, data: list):
+        return list(map(lambda rating: rating.to_dict(), data))
+
     def to_json(self):
         data = {
             'value': self.value,
@@ -174,3 +177,11 @@ class DBPredictedRating():
             'jobPostingId': self.job_posting_id,
         }
         return json.dumps(data)
+
+    def to_dict(self):
+        data = {
+            'value': self.value,
+            'userId': self.user_id,
+            'jobPostingId': self.job_posting_id,
+        }
+        return data

@@ -32,6 +32,7 @@ def fetch_job_postings() -> Union[list[DBJobPosting], HttpError]:
         res = requests.get(ENDPOINT.JOBS)
         res.raise_for_status()
         data = res.json()
+        print(data)
         return DBJobPosting.from_json_list(data)
     except requests.exceptions.HTTPError as e:
         print("error fetching job_postings")
@@ -67,6 +68,7 @@ def fetch_employment_types() -> Union[list[DBEmploymentType], HttpError]:
         res = requests.get(ENDPOINT.EMPLOYMENT_TYPES)
         res.raise_for_status()
         data = res.json()
+        print(data)
         return DBEmploymentType.from_json_list(data)
     except requests.exceptions.HTTPError as e:
         print("error fetching e_types")
@@ -75,9 +77,11 @@ def fetch_employment_types() -> Union[list[DBEmploymentType], HttpError]:
 
 def create_predicted_ratings(ratings: list[DBPredictedRating]) -> Union[HTTPSuccess, HttpError]:
     try:
-        ratings = list(map(lambda r: r.to_json(),  ratings))
+
+        ratings = DBPredictedRating.to_dict_list(ratings)
         res = requests.post(ENDPOINT.PREDICTED_RATINGS,
-                            json.dumps(ratings))
+                            json=ratings)
+        print(res, ratings)
         res.raise_for_status()
         return HTTPSuccess(res.text, res.status_code)
     except requests.exceptions.HTTPError as e:
