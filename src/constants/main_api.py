@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_PATH = os.getenv('MAIN_API_PATH')
+MAIN_API_HEADER_KEY = "x-access-key"
 
 
 class ENDPOINT:

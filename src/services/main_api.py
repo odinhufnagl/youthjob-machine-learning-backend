@@ -1,11 +1,10 @@
 from cmath import exp
 from email.policy import HTTP
+import os
 import re
 from urllib import response
-from flask import jsonify
-from requests import request
+from constants.main_api import MAIN_API_HEADER_KEY
 import requests
-from sqlalchemy import true
 from classes.http import HttpError, HTTPSuccess
 from classes.main_api_models import DBPredictedRating
 from constants import ENDPOINT
@@ -15,10 +14,15 @@ import json
 from classes import *
 from typing import Union
 
+API_KEY = os.getenv('MAIN_API_KEY')
+default_headers = {MAIN_API_HEADER_KEY: API_KEY}
+s = requests.Session()
+s.headers.update(default_headers)
+
 
 def fetch_user(id) -> Union[DBUser, HttpError]:
     try:
-        res = requests.get(ENDPOINT.USER(id))
+        res = s.get(ENDPOINT.USER(id),)
         res.raise_for_status()
         data = res.json()
         return DBUser.from_json(data)
@@ -29,7 +33,7 @@ def fetch_user(id) -> Union[DBUser, HttpError]:
 
 def fetch_job_postings() -> Union[list[DBJobPosting], HttpError]:
     try:
-        res = requests.get(ENDPOINT.JOBS)
+        res = s.get(ENDPOINT.JOBS)
         res.raise_for_status()
         data = res.json()
         print(data)
@@ -41,7 +45,7 @@ def fetch_job_postings() -> Union[list[DBJobPosting], HttpError]:
 
 def fetch_job_posting(job_posting_id) -> Union[DBJobPosting, HttpError]:
     try:
-        res = requests.get(ENDPOINT.JOB(job_posting_id))
+        res = s.get(ENDPOINT.JOB(job_posting_id))
         res.raise_for_status()
         data = res.json()
         return DBJobPosting.from_json(data)
@@ -53,7 +57,7 @@ def fetch_job_posting(job_posting_id) -> Union[DBJobPosting, HttpError]:
 def fetch_ratings(user_id) -> Union[list[DBRating], HttpError]:
     try:
         url = f"{ENDPOINT.RATINGS}?{urlencode({'userId': user_id})}"
-        res = requests.get(url)
+        res = s.get(url)
         res.raise_for_status()
         data = res.json()
         return DBRating.from_json_list(data)
@@ -65,7 +69,7 @@ def fetch_ratings(user_id) -> Union[list[DBRating], HttpError]:
 
 def fetch_employment_types() -> Union[list[DBEmploymentType], HttpError]:
     try:
-        res = requests.get(ENDPOINT.EMPLOYMENT_TYPES)
+        res = s.get(ENDPOINT.EMPLOYMENT_TYPES)
         res.raise_for_status()
         data = res.json()
         print(data)
@@ -79,8 +83,8 @@ def create_predicted_ratings(ratings: list[DBPredictedRating]) -> Union[HTTPSucc
     try:
 
         ratings = DBPredictedRating.to_dict_list(ratings)
-        res = requests.post(ENDPOINT.PREDICTED_RATINGS,
-                            json=ratings)
+        res = s.post(ENDPOINT.PREDICTED_RATINGS,
+                     json=ratings)
         print(res, ratings)
         res.raise_for_status()
         return HTTPSuccess(res.text, res.status_code)
