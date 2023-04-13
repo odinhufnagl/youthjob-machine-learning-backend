@@ -1,3 +1,4 @@
+from crypt import methods
 import controllers
 from flask import Flask, request
 
@@ -11,9 +12,9 @@ def update_predictions(user_id):
     return controllers.update_predictions(user_id)
 
 
-@app.route('/sentence_to_vec/<sentence>')
-def sentence_to_vec(sentence):
-    return controllers.sentence_to_vec(sentence)
+@app.route('/sentence_to_vec', methods=['POST'])
+def sentence_to_vec():
+    return controllers.sentence_to_vec(request)
 
 
 if __name__ == '__main__':
